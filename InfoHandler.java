@@ -10,6 +10,8 @@ public class InfoHandler extends Thread{
 	private Socket clientSocket;
 	private static boolean status; //Gibt intern den Status des Space an
 
+	private String password = "********"; //Passwort festlegen (für GitHub entfernen)
+
 	public InfoHandler(JsonHandler _jsonHandler, Socket _clientSocket) {
 		jsonHandler = _jsonHandler;
 		clientSocket = _clientSocket;
@@ -21,7 +23,7 @@ public class InfoHandler extends Thread{
 		try {
 			PrintWriter outWriter = new PrintWriter(clientSocket.getOutputStream(), true);
 			outWriter.print("\nWillkommen auf vspace.one\n\n"
-					+ "Über dieses Interface kannst du den Öffnungsstus des vspace.one ändern.\n"
+					+ "Über dieses Interface kannst du den Öffnungsstatus des vspace.one ändern.\n"
 					+ "Wenn du Fragen zur Funktion hast tippe \"help\" oder schaue im Wiki nach.\n\n"
 					+ "-->   ");
 			outWriter.flush();
@@ -32,20 +34,22 @@ public class InfoHandler extends Thread{
 
 				if (message!=null) {
 					if (message.equalsIgnoreCase("open")||message.equalsIgnoreCase("opened")) { //Status geöffnet
-						status = true;
-						jsonHandler.updateStatusOpen();
+						if (pwCheck(outWriter)) { //Passwort checken
+							status = true;
+							jsonHandler.updateStatusOpen();
 
-						outWriter.print("\nDer vspace.one ist nun geöffnet.\n\n");
-						outWriter.flush();
-						
+							outWriter.print("\nDer vspace.one ist nun geöffnet.\n\n");
+							outWriter.flush();
+						}
 						break;
 					} else if (message.equalsIgnoreCase("close")||message.equalsIgnoreCase("closed")) { //Status geschlossen
-						status = false;
-						jsonHandler.updateStatusClosed();
+						if (pwCheck(outWriter)) { //Passwort checken
+							status = false;
+							jsonHandler.updateStatusClosed();
 
-						outWriter.print("\nDer vspace.one ist nun geschlossen.\n\n");
-						outWriter.flush();
-						
+							outWriter.print("\nDer vspace.one ist nun geschlossen.\n\n");
+							outWriter.flush();
+						}
 						break;
 					} else if (message.equalsIgnoreCase("status")) { //Öffnungsstatus ausgeben
 						if (status) {
@@ -55,7 +59,7 @@ public class InfoHandler extends Thread{
 							outWriter.print("\nDer vspace.one ist leider geschlossen.\n\n");
 							outWriter.flush();
 						}
-						
+
 						break;
 					} else if (message.equalsIgnoreCase("help")) { //Hilfe ausgeben
 						outWriter.print("\nFunktionen:\n"
@@ -76,5 +80,26 @@ public class InfoHandler extends Thread{
 		} catch (IOException ex) {
 			ex.printStackTrace();
 		}
+	}
+
+	private boolean pwCheck(PrintWriter _outWriter) throws IOException {
+		String givenPassword;
+
+		_outWriter.print("\nBitte Passwort eingeben\n\n-->   ");
+		_outWriter.flush();
+
+		BufferedReader inBuffer = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
+		givenPassword = inBuffer.readLine();
+
+		if (givenPassword.equals(password)) {
+			_outWriter.print("\nPasswort korrekt\n");
+			_outWriter.flush();
+
+			return true;
+		}
+
+		_outWriter.print("\nPasswort FALSCH\n");
+		_outWriter.flush();
+		return false;
 	}
 }
