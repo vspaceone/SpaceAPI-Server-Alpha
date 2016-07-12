@@ -22,56 +22,113 @@ public class InfoHandler extends Thread{
 
 		try {
 			PrintWriter outWriter = new PrintWriter(clientSocket.getOutputStream(), true);
-			outWriter.print("\nWillkommen auf vspace.one\n\n"
-					+ "Über dieses Interface kannst du den Öffnungsstatus des vspace.one ändern.\n"
-					+ "Wenn du Fragen zur Funktion hast tippe \"help\" oder schaue im Wiki nach.\n\n"
+			outWriter.print("\n\rWillkommen auf vspace.one\n\r\n\r"
+					+ "Über dieses Interface kannst du den Öffnungsstatus des vspace.one ändern.\n\r"
+					+ "Wenn du Fragen zur Funktion hast tippe \"help\" oder schaue im Wiki nach.\n\r\n\r"
 					+ "-->   ");
 			outWriter.flush();
 
 			while(true) {
 				BufferedReader inBuffer = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
 				message = inBuffer.readLine();
+				message.toLowerCase();
 
 				if (message!=null) {
-					if (message.equalsIgnoreCase("open")||message.equalsIgnoreCase("opened")) { //Status geöffnet
+					if (message.equals("open")||message.equals("opened")) { //Status geöffnet
 						if (pwCheck(outWriter)) { //Passwort checken
 							status = true;
 							jsonHandler.updateStatusOpen();
 
-							outWriter.print("\nDer vspace.one ist nun geöffnet.\n\n");
+							outWriter.print("\n\rDer vspace.one ist nun geöffnet.\n\r\n\r");
 							outWriter.flush();
 						}
 						break;
-					} else if (message.equalsIgnoreCase("close")||message.equalsIgnoreCase("closed")) { //Status geschlossen
+					} else if (message.equals("close")||message.equals("closed")) { //Status geschlossen
 						if (pwCheck(outWriter)) { //Passwort checken
 							status = false;
 							jsonHandler.updateStatusClosed();
 
-							outWriter.print("\nDer vspace.one ist nun geschlossen.\n\n");
+							outWriter.print("\n\rDer vspace.one ist nun geschlossen.\n\r\n\r");
 							outWriter.flush();
 						}
 						break;
-					} else if (message.equalsIgnoreCase("status")) { //Öffnungsstatus ausgeben
+					} else if (message.equals("status")) { //Öffnungsstatus ausgeben
 						if (status) {
-							outWriter.print("\nDer vspace.one ist geöffnet. Komm vorbei!\n\n");
+							outWriter.print("\n\rDer vspace.one ist geöffnet. Komm vorbei!\n\r\n\r");
 							outWriter.flush();
 						} else {
-							outWriter.print("\nDer vspace.one ist leider geschlossen.\n\n");
+							outWriter.print("\n\rDer vspace.one ist leider geschlossen.\n\r\n\r");
 							outWriter.flush();
 						}
 
 						break;
-					} else if (message.equalsIgnoreCase("help")) { //Hilfe ausgeben
-						outWriter.print("\nFunktionen:\n"
-								+ "\"closed\" oder \"close\" --- Setzt den Status auf \"geschlossen\"\n"
-								+ "\"opened\" oder \"open\" --- Setzt den Status auf \"geöffnet\"\n"
-								+ "\"status\" --- Gibt den aktuellen Status wieder\n"
-								+ "\"exit\" oder \"quit\" --- Schließt die Verbindung\n"
-								+ "\"help\" --- Zeigt diese Hilfe an\n\n"
+					} else if (message.equals("help")) { //Hilfe ausgeben
+						outWriter.print("\n\rFunktionen:\n\r"
+								+ "\"closed\" oder \"close\" --- Setzt den Status auf \"geschlossen\"\n\r"
+								+ "\"opened\" oder \"open\" --- Setzt den Status auf \"geöffnet\"\n\r"
+								+ "\"status\" --- Gibt den aktuellen Status wieder\n\r"
+								+ "\"exit\" oder \"quit\" --- Schließt die Verbindung\n\r"
+								+ "\"set temp *Raum* *Wert*\" --- Setzt die Temperatur im jeweiligen Raum\n\r"
+								+ "\"set hum *Raum* *Wert*\" --- Setzt die Luftfeuchtigkeit im jeweiligen Raum\n\r"
+								+ "\"help\" --- Zeigt diese Hilfe an\n\r\n\r"
 								+ "-->   ");
 						outWriter.flush();
-					} else if (message.equalsIgnoreCase("exit")|message.equalsIgnoreCase("quit")) { //Socket schlißen bei "exit" oder "quit"
+					} else if (message.startsWith("set temp")) {
+						if (pwCheck(outWriter)) {
+							String[] elements;
+							elements = message.split(" ");
+
+							if(elements[2].equals("maschinenraum")) {
+								jsonHandler.setTempMaschinenraum(Integer.parseInt(elements[3]));
+								outWriter.print("\n\rTemperatur im Maschinenraum auf "
+										+ (Double.valueOf(elements[3])/100) + " Grad gesetzt.\n\r\n\r");
+								outWriter.flush();
+							} else if(elements[2].equals("bruecke")) {
+								jsonHandler.setTempBruecke(Integer.parseInt(elements[3]));
+								outWriter.print("\n\rTemperatur in der Brücke auf " 
+										+ (Double.valueOf(elements[3])/100) + " Grad gesetzt.\n\r\n\r");
+								outWriter.flush();
+							}
+
+							if (status) {
+								jsonHandler.updateStatusOpen();
+							} else {
+								jsonHandler.updateStatusClosed();
+							}
+						}
+
+						break;	
+					} else if (message.startsWith("set hum")) {
+						if (pwCheck(outWriter)) {
+							String[] elements;
+							elements = message.split(" ");
+
+							if(elements[2].equals("maschinenraum")) {
+								jsonHandler.setHumMaschinenraum(Integer.parseInt(elements[3]));
+								outWriter.print("\n\rLuftfäuchtigkeit im Maschinenraum auf "
+										+ (Double.valueOf(elements[3])/100) + "% gesetzt.\n\r\n\r");
+								outWriter.flush();
+							} else if(elements[2].equals("bruecke")) {
+								jsonHandler.setHumBruecke(Integer.parseInt(elements[3]));
+								outWriter.print("\n\rLuftfäuchtigkeit in der Brücke auf " 
+										+ (Double.valueOf(elements[3])/100) + "% gesetzt.\n\r\n\r");
+								outWriter.flush();
+							}
+
+							if (status) {
+								jsonHandler.updateStatusOpen();
+							} else {
+								jsonHandler.updateStatusClosed();
+							}
+						}
+
 						break;
+					} else if (message.equals("exit")|message.equals("quit")) { //Socket schlißen bei "exit" oder "quit"
+						break;
+					} else {
+						outWriter.print("\n\rUnbekannter Befehl, \"help\" für Hilfe\n\r\n\r"
+								+ "-->   ");
+						outWriter.flush();
 					}
 				} 
 			}
@@ -85,20 +142,20 @@ public class InfoHandler extends Thread{
 	private boolean pwCheck(PrintWriter _outWriter) throws IOException {
 		String givenPassword;
 
-		_outWriter.print("\nBitte Passwort eingeben\n\n-->   ");
+		_outWriter.print("\n\rBitte Passwort eingeben\n\r\n\r-->   ");
 		_outWriter.flush();
 
 		BufferedReader inBuffer = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
 		givenPassword = inBuffer.readLine();
 
 		if (givenPassword.equals(password)) {
-			_outWriter.print("\nPasswort korrekt\n");
+			_outWriter.print("\n\rPasswort korrekt\n\r");
 			_outWriter.flush();
 
 			return true;
 		}
 
-		_outWriter.print("\nPasswort FALSCH\n");
+		_outWriter.print("\n\rPasswort FALSCH\n\r");
 		_outWriter.flush();
 		return false;
 	}
