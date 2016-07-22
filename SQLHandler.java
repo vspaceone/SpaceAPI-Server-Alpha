@@ -17,7 +17,7 @@ public class SQLHandler {
 	private Connection conn;
 
 
-	public  SQLHandler(String _dbHostname, Integer _dbPort, String _dbName, String _dbUser, String _dbPassword) { //for future use
+	public  SQLHandler(String _dbHostname, Integer _dbPort, String _dbName, String _dbUser, String _dbPassword) {
 		dbHostname = _dbHostname;
 		dbPort = _dbPort;
 		dbName = _dbName;

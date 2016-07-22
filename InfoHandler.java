@@ -8,13 +8,15 @@ import java.net.Socket;
 public class InfoHandler extends Thread{
 	private JsonHandler jsonHandler;
 	private SQLHandler sqlHandler;
+	private IRCBot ircBot;
 	private Socket clientSocket;
 	private String password;
 	
 
-	public InfoHandler(JsonHandler _jsonHandler, SQLHandler _sqlHandler, Socket _clientSocket, String _password) {
+	public InfoHandler(JsonHandler _jsonHandler, SQLHandler _sqlHandler, IRCBot _ircBot, Socket _clientSocket, String _password) {
 		jsonHandler = _jsonHandler;
 		sqlHandler = _sqlHandler;
+		ircBot = _ircBot;
 		clientSocket = _clientSocket;
 		password = _password;
 	}
@@ -34,12 +36,14 @@ public class InfoHandler extends Thread{
 				BufferedReader inBuffer = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
 				message = inBuffer.readLine();
 				message.toLowerCase();
+				message = message.trim();
 
 				if (message!=null) {
 					if (message.equals("open")||message.equals("opened")) { //Status geöffnet
 						
 						if (pwCheck(outWriter)) { //Passwort checken
 							sqlHandler.setDoorstate(true);
+							ircBot.statusOpen();
 
 							outWriter.print("\n\rDer vspace.one ist nun geöffnet.\n\r\n\r");
 							outWriter.flush();
@@ -50,6 +54,7 @@ public class InfoHandler extends Thread{
 						
 						if (pwCheck(outWriter)) { //Passwort checken
 							sqlHandler.setDoorstate(false);
+							ircBot.statusClosed();
 
 							outWriter.print("\n\rDer vspace.one ist nun geschlossen.\n\r\n\r");
 							outWriter.flush();
@@ -62,14 +67,14 @@ public class InfoHandler extends Thread{
 							outWriter.print("\n\rDer vspace.one ist geöffnet. Komm vorbei!\n\r");
 							outWriter.flush();
 						} else {
-							outWriter.print("\n\rDer vspace.one ist leider geschlossen.\n\r");
+							outWriter.print("\n\rDer vspace.one ist leider geschlossen.\n\r\n\r");
 							outWriter.flush();
 						}
 						
 						outWriter.print("Die Temperatur im Maschinenraum beträgt: " + sqlHandler.getTemperature("maschinenraum") + "°C.\n\r");
-						outWriter.print("Die Temperatur in der Brücke beträgt: " + sqlHandler.getTemperature("bruecke") + "°C.\n\r\n\r");
-						outWriter.print("Die Luftfeuchtigkeit im Maschinenraum beträgt: " + sqlHandler.getHumidity("maschinenraum") + "°C\n\r");
-						outWriter.print("Die Luftfeuchtigkeit in der Brücke beträgt: " + sqlHandler.getHumidity("bruecke") + "°C.\n\r\n\r");
+						outWriter.print("Die Temperatur auf der Brücke beträgt: " + sqlHandler.getTemperature("bruecke") + "°C.\n\r\n\r");
+						outWriter.print("Die Luftfeuchtigkeit im Maschinenraum beträgt: " + sqlHandler.getHumidity("maschinenraum") + "%\n\r");
+						outWriter.print("Die Luftfeuchtigkeit auf der Brücke beträgt: " + sqlHandler.getHumidity("bruecke") + "%.\n\r\n\r");
 
 						break;
 					} else if (message.equals("help")) { //Hilfe ausgeben
@@ -119,13 +124,12 @@ public class InfoHandler extends Thread{
 								+ "-->   ");
 						outWriter.flush();
 					}
-					
-					jsonHandler.updateJSON();
 				} 
 			}
 			System.out.println("Socket closed: " + clientSocket);
 			outWriter.close();
 			clientSocket.close(); //Socket schließen
+			jsonHandler.updateJSON();
 		} catch (IOException ex) {
 			ex.printStackTrace();
 		}

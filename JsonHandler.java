@@ -122,6 +122,8 @@ public class JsonHandler {
 				})
 				.toString();
 			
+			System.out.println("\nJSON erzeugt\n");
+			
 			writer.print(myJSON);
 			writer.close();
 		} catch (Exception e) {
