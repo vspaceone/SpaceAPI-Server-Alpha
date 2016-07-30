@@ -55,6 +55,7 @@ public class JsonHandler {
 					{
 						put("twitter", "@vspace.one");
 						put("email", "hackerspace-vs@lieber-anders.de");
+						put("phone", "+49 221 596196638");
 					}
 				})
 				.put("issue_report_channels", new ArrayList<String>() {
