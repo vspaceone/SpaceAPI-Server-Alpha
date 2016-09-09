@@ -121,6 +121,7 @@ public class JsonHandler {
 						put("open", stateOpen);
 					}
 				})
+				.put("open", stateOpen)
 				.toString();
 			
 			System.out.println("\nJSON erzeugt\n");
