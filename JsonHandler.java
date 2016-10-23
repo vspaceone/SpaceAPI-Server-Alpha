@@ -41,9 +41,10 @@ public class JsonHandler {
 			
 			myJSON = new JSONObject()
 				.put("api", "0.13")
-				.put("space", "0.13")
+				.put("space", "vspace.one")
 				.put("logo", "https://wiki.vspace.one/lib/exe/fetch.php?cache=&media=verein:logo_vspaceone.png")
 				.put("url", "https://vspace.one")
+				.put("ext_ccc", "chaostreff")
 				.put("location", new HashMap<String, Object>() {
 					{
 						put("address","Wilhelm-Binder-Str. 19, 78048 VS-Villingen, Germany");

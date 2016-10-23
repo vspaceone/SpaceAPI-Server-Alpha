@@ -139,7 +139,7 @@ public class SQLHandler {
 					+ "WHERE Type LIKE 'temperature' "
 					+ "AND AltName LIKE '" + room + "' "
 					+ "AND SensorData.Room_ID = Rooms.Room_ID "
-					+ "AND SensorData.Time >= DATE_SUB(NOW(), INTERVAL 30 MINUTE) "
+					+ "AND SensorData.Time >= NOW() - INTERVAL 30 MINUTE "
 					+ "ORDER BY Time DESC "
 					+ "LIMIT 1;";
 			
@@ -166,7 +166,7 @@ public class SQLHandler {
 					+ "WHERE Type LIKE 'humidity' "
 					+ "AND AltName LIKE '" + room + "' "
 					+ "AND SensorData.Room_ID = Rooms.Room_ID "
-					+ "AND SensorData.Time >= DATE_SUB(NOW(), INTERVAL 30 MINUTE) "
+					+ "AND SensorData.Time >= NOW() - INTERVAL 30 MINUTE "
 					+ "ORDER BY Time DESC "
 					+ "LIMIT 1;";
 
