@@ -55,7 +55,7 @@ public class JsonHandler {
 				.put("contact", new HashMap<String, String>() {
 					{
 						put("twitter", "@vspace.one");
-						put("email", "hackerspace-vs@lieber-anders.de");
+						put("email", "info@space.one");
 						put("phone", "+49 221 596196638");
 					}
 				})
